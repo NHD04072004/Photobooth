@@ -27,6 +27,11 @@ async def capture_image(file: UploadFile = File(...)):
     return {"status": "success", "filename": filename}
 
 
+@app.get("/hello")
+async def hello():
+    return "hello"
+
+
 app.mount("/", StaticFiles(directory="../frontend", html=True), name="frontend")
 
 if __name__ == '__main__':
