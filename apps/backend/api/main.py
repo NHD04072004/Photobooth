@@ -96,7 +96,3 @@ def close_session(session_id: str):
         return {"message": f"Session {session_id} closed and images deleted"}
     else:
         return {"message": "Session not found"}
-
-
-if __name__ == '__main__':
-    uvicorn.run("main:app", reload=True, host="127.0.0.1", port=8000)
