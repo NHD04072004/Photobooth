@@ -1,71 +1,39 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Photobooth</title>
   <style>
-    video, canvas {
-      border: 2px solid #333;
-      border-radius: 8px;
+    body {
+      display: flex;
+      height: 100vh;
+      justify-content: center;
+      align-items: center;
+      font-family: sans-serif;
     }
-    #controls {
-      margin-top: 10px;
+    button {
+      padding: 1rem 2rem;
+      font-size: 1.25rem;
+      border: none;
+      border-radius: 0.5rem;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
     }
   </style>
 </head>
 <body>
-  <h2>Photobooth</h2>
-  <video id="video" width="640" height="480" autoplay></video>
-  <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
-
-  <div id="controls">
-    <button id="btnCapture">Chụp ảnh</button>
-  </div>
-
-  <div id="nontification"></div>
-
+  <button id="startBtn">Bắt đầu chụp ảnh</button>
   <script>
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const btn = document.getElementById('btnCapture');
-    const nonti = document.getElementById('nontification');
-
-    // Bật webcam
-    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-      .then(stream => {
-        video.srcObject = stream;
-      })
-      .catch(err => {
-        console.error("Không thể truy cập webcam:", err);
+    document.getElementById('startBtn')
+      .addEventListener('click', () => {
+        // Điều hướng sang trang capture.html
+        window.location.href = 'capture.html';
       });
-
-    btn.addEventListener('click', () => {
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      canvas.toBlob(blob => {
-        const formData = new FormData();
-        const filename = `capture_${Date.now()}.png`;
-        formData.append('file', blob, filename);
-
-        fetch('/capture', {
-          method: 'POST',
-          body: formData
-        })
-        .then(resp => resp.json())
-        .then(data => {
-          if (data.status === 'success') {
-            console.log('Lưu ảnh thành công: ' + data.filename);
-          } else {
-            console.log('Lưu ảnh thất bại');
-          }
-        })
-        .catch(err => {
-          console.error("Lỗi khi gửi ảnh:", err);
-        });
-      }, 'image/png');
-    });
   </script>
 </body>
 </html>
