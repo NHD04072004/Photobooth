@@ -1,17 +1,12 @@
 import os
 import json
 import shutil
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
 from typing import List
 from uuid import uuid4
 from pydantic import BaseModel
 from fastapi import FastAPI, File, UploadFile, HTTPException, status
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
 
 app = FastAPI()
 
@@ -23,10 +18,6 @@ app.add_middleware(
 )
 
 
-class ImageUrls(BaseModel):
-    image_urls: List[str]
-
-
 @app.post("/api/v1/sessions")
 def create_session():
     session_id = str(uuid4())
@@ -35,7 +26,7 @@ def create_session():
 
 
 @app.post("/api/v1/sessions/{session_id}/capture")
-async def capture_image(session_id: str, urls: ImageUrls):
+async def capture_image(session_id: str, images: List[UploadFile] = File(...)):
     """
     API chụp ảnh, Gửi ảnh lên server
     """
@@ -43,21 +34,17 @@ async def capture_image(session_id: str, urls: ImageUrls):
     if not os.path.exists(session_path):
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Session did not started")
 
-    urls_file = f"{session_path}/urls.json"
-    if os.path.exists(urls_file):
-        with open(urls_file, "r") as f:
-            existing_urls = json.load(f)
-    else:
-        existing_urls = []
-
-    existing_urls.extend(urls.image_urls)
-
-    with open(urls_file, "w") as f:
-        json.dump(existing_urls, f, indent=2)
+    saved_images = []
+    for image in images:
+        image_path = os.path.join(session_path, image.filename)
+        with open(image_path, 'wb') as buffer:
+            buffer.write(await image.read())
+        saved_images.append(image_path)
+        image.file.close()
 
     return {
         "status": True,
-        "message": f"Saved {len(urls.image_urls)} image URLs"
+        "message": f"Saved {len(saved_images)} images"
     }
 
 
