@@ -8,6 +8,7 @@ from typing import List
 from uuid import uuid4
 from pydantic import BaseModel
 from fastapi import FastAPI, File, UploadFile, HTTPException, status
+from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
@@ -26,14 +27,14 @@ class ImageUrls(BaseModel):
     image_urls: List[str]
 
 
-@app.post("/sessions")
+@app.post("/api/v1/sessions")
 def create_session():
     session_id = str(uuid4())
     os.makedirs(f'images/{session_id}', exist_ok=True)
     return {"session_id": session_id, "message": "Session open", "status": True}
 
 
-@app.post("/sessions/{session_id}/capture")
+@app.post("/api/v1/sessions/{session_id}/capture")
 async def capture_image(session_id: str, urls: ImageUrls):
     """
     API chụp ảnh, Gửi ảnh lên server
@@ -60,7 +61,7 @@ async def capture_image(session_id: str, urls: ImageUrls):
     }
 
 
-@app.get("/sessions/{session_id}/images")
+@app.get("/api/v1/sessions/{session_id}/images")
 def get_all_images(session_id: str):
     session_path = f'images/{session_id}'
     if not os.path.exists(session_path):
@@ -75,7 +76,7 @@ def get_all_images(session_id: str):
     return {"images": image_files}
 
 
-@app.get("/sessions/{session_id}/images/{filename}/download")
+@app.get("/api/v1/sessions/{session_id}/images/{filename}/download")
 def download_image(session_id: str, filename: str):
     file_path = f"images/{session_id}/{filename}"
     if not os.path.exists(file_path):
@@ -88,7 +89,7 @@ def download_image(session_id: str, filename: str):
     )
 
 
-@app.post("/sessions/{session_id}/close")
+@app.post("/api/v1/sessions/{session_id}/close")
 def close_session(session_id: str):
     session_path = f'images/{session_id}'
     if os.path.exists(session_path):
