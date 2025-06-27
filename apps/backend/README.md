@@ -1,5 +1,17 @@
 # Backend
 
+- Concatenate images: go to file `utils/factory.py` and add your images here
+```python
+imgs = [
+    load_image("hinhanh1.jpg", (600, 800)),
+    load_image("hinhanh2.jpeg", (600, 800)),
+]
+```
+- Then run your script, `output_collage.jpg` is output
+```commandline
+python factory.py
+```
+
 - Build docker
 
 ```commandline
