@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router';
+import DynamicFrame from './DynamicFrame';
 
 const Frame = () => {
   const navigate = useNavigate();
@@ -13,29 +14,17 @@ const Frame = () => {
           Ảnh minh hoạ
         </div>
       </div>
-      <div className="flex justify-center gap-16 mb-8">
-        <div className="flex flex-col items-center">
-          <div className="w-24 h-40 bg-teal-700 border border-black rounded-sm"></div>
-          <div className="mt-2 text-center">
-            <p className="text-sm font-semibold">Khung cơ bản</p>
-            <p className="text-xs text-gray-700">70.000 VND</p>
-          </div>
-        </div>
+      <div className="flex justify-center items-center gap-16 mb-8">
+        <DynamicFrame colsNumber={1} itemsLength={4} width={100} ratio='2/1'/>
 
-        <div className="flex flex-col items-center">
-          <div className="w-32 h-40 bg-teal-700 border border-black rounded-sm"></div>
-          <div className="mt-2 text-center">
-            <p className="text-sm font-semibold">Khung cao cấp</p>
-            <p className="text-xs text-gray-700">100.000 VND</p>
-          </div>
-        </div>
+        <DynamicFrame colsNumber={2} itemsLength={4} width={100} ratio='1/1'/>
       </div>
       <div className="flex justify-between">
         <button onClick={() => navigate('/')} className="text-2xl font-bold">
           Quay lại
         </button>
         <button
-          onClick={() => navigate('/select-print-frame')} 
+          onClick={() => navigate('/select-print-frame')}
           className="text-2xl font-bold"
         >
           Tiếp theo

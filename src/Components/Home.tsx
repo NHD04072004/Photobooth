@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router';
 import Webcam from 'react-webcam';
+import DynamicFrame from './DynamicFrame';
 
 const videoConstraints = {
   width: 320,
