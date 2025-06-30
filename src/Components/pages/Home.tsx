@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router';
 import Webcam from 'react-webcam';
-import DynamicFrame from './DynamicFrame';
 
 const videoConstraints = {
   width: 320,
@@ -38,7 +37,6 @@ const Home = () => {
         <h1 className="text-4xl font-bold text-black">Chạm để bắt đầu</h1>
       </div>
     </section>
-
   );
 };
 
