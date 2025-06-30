@@ -1,6 +1,7 @@
 import os
 import json
 import shutil
+from pprint import pprint
 from typing import List, Dict
 from uuid import uuid4
 from fastapi import FastAPI, File, UploadFile, HTTPException, Path
@@ -55,11 +56,13 @@ def get_frame_family(frame_family_id: str):
 @app.post("/sessions/{session_id}/select-frame")
 def select_frame(session_id: str, req: SelectFrameRequest):
     session_dir = f'images/{session_id}'
+    options = FRAME_FAMILIES[req.frame_family_id].options
+    selected = next((opt for opt in options if opt.id == req.frame_option_id), None)
     if not os.path.exists(session_dir):
         raise HTTPException(status_code=404, detail="Session không tồn tại")
     if req.frame_family_id not in FRAME_FAMILIES:
         raise HTTPException(status_code=404, detail="Frame family không hợp lệ")
-    if req.frame_option_id not in [opt.id for opt in FRAME_FAMILIES[req.frame_family_id].options]:
+    if not selected:
         raise HTTPException(status_code=400, detail="Frame option không hợp lệ cho family này")
 
     return JSONResponse(
@@ -69,6 +72,9 @@ def select_frame(session_id: str, req: SelectFrameRequest):
             "session_id": session_id,
             "frame_family_id": req.frame_family_id,
             "frame_option_id": req.frame_option_id,
+            "cols": selected.cols,
+            "rows": selected.rows,
+            "ratio": selected.ratio,
         }
     )
 

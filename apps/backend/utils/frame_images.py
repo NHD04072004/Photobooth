@@ -1,5 +1,6 @@
 from typing import List, Dict
 from pydantic import BaseModel
+from uuid import uuid4
 
 
 class FrameOption(BaseModel):
@@ -7,6 +8,7 @@ class FrameOption(BaseModel):
     label: str
     cols: int
     rows: int
+    ratio: float  # cols/rows
 
 
 class FrameFamily(BaseModel):
@@ -25,17 +27,17 @@ FRAME_FAMILIES: Dict[str, FrameFamily] = {
         id="frame2x6",
         label="Khung 2×6",
         options=[
-            FrameOption(id="frame2x6_3", label="2×6 – 3 ảnh", cols=1, rows=3),
-            FrameOption(id="frame2x6_4", label="2×6 – 4 ảnh", cols=1, rows=4),
+            FrameOption(id=str(uuid4()), label="2×6 – 3 ảnh", cols=1, rows=3, ratio=1/3),
+            FrameOption(id=str(uuid4()), label="2×6 – 4 ảnh", cols=1, rows=4, ratio=1/4),
         ],
     ),
     "frame4x6": FrameFamily(
         id="frame4x6",
         label="Khung 4×6",
         options=[
-            FrameOption(id="frame4x6_4", label="4×6 – 4 ảnh", cols=2, rows=2),
-            FrameOption(id="frame4x6_5", label="4×6 – 5 ảnh", cols=2, rows=3),
-            FrameOption(id="frame4x6_6", label="4×6 – 6 ảnh", cols=3, rows=2),
+            FrameOption(id=str(uuid4()), label="4×6 – 4 ảnh", cols=2, rows=2, ratio=2/2),
+            FrameOption(id=str(uuid4()), label="4×6 – 5 ảnh", cols=2, rows=3, ratio=2/3),
+            FrameOption(id=str(uuid4()), label="4×6 – 6 ảnh", cols=3, rows=2, ratio=3/2),
         ],
     ),
 }
