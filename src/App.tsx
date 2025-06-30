@@ -1,8 +1,9 @@
-import React from 'react';
 import { Routes, Route } from 'react-router';
 import Home from './Components/Home';
 import Frame from './Components/Frame';
 import PrintFrame from './Components/PrintFrame';
+import "./App.css";
+
 function App() {
   return (
     <>
