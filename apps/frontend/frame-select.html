@@ -23,10 +23,17 @@
       <!-- place navbar here -->
     </header>
     <main>
-      <div class="">
-        <button type="button" class="btn btn-primary btn-lg" id="startBtn">
-          Ấn để bắt đầu chụp
-        </button>
+      <h2>Chọn khung ảnh</h2>
+
+      <div id="frames">
+        <div class="frame-option" data-layout="2x4">
+          <img id="2x4" src="./images/empty.jpg" alt="2x4" />
+          <div class="price">70,000 VND</div>
+        </div>
+        <div class="frame-option" data-layout="4x6">
+          <img id="4x4" src="./images/empty.jpg" alt="4x6" />
+          <div class="price">100,000 VND</div>
+        </div>
       </div>
     </main>
     <footer>
@@ -46,30 +53,21 @@
     ></script>
 
     <script>
-      document.getElementById("startBtn").addEventListener("click", () => {
-        fetch("http://localhost:8000/api/v1/sessions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Lỗi khi tạo session");
-            }
-            return response.json();
-          })
-          .then((data) => {
-            const sessionId = data.session_id;
-            // Lưu vào localStorage
-            localStorage.setItem("session_id", sessionId);
-            // Chuyển sang capture.html, truyền session_id qua query nếu cần
-            window.location.href = `capture.html?session_id=${sessionId}`;
-          })
-          // .catch((error) => {
-          //   console.error("Có lỗi khi khởi tạo session:", error);
-          //   alert("Không thể khởi tạo session. Vui lòng thử lại.");
-          // });
+      const urlParams = new URLSearchParams(window.location.search);
+      const sessionId = urlParams.get("session_id") || localStorage.getItem("session_id");
+
+      if (!sessionId) {
+        alert("Không tìm thấy session ID!");
+        window.location.href = "index.html";
+      }
+
+      document.querySelectorAll(".frame-option").forEach((option) => {
+        option.addEventListener("click", () => {
+          const layout = option.dataset.layout;
+          localStorage.setItem("selected_layout", layout);
+          console.log(layout);
+          window.location.href = `select-detail.html?session_id=${encodeURIComponent(sessionId)}&layout=${encodeURIComponent(layout)}`;
+        });
       });
     </script>
   </body>

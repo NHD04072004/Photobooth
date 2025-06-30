@@ -1,83 +1,123 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Photobooth</title>
+  <title>Capture Image</title>
   <style>
+    #main {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
     video, canvas {
-      border: 2px solid #333;
-      border-radius: 8px;
+      border: 1px solid black;
+      width: 480px;
+      height: 360px;
     }
-    #controls {
-      margin-top: 10px;
+    #capture-btn{
+      
     }
-    button {
-      padding: 1rem 2rem;
-      font-size: 1.25rem;
-      border: none;
-      border-radius: 0.5rem;
-      background-color: #007bff;
-      color: white;
-      cursor: pointer;
+    #gallery {
+      margin-left: 20px;
     }
-    button:hover {
-      background-color: #0056b3;
+    #gallery img {
+      width: 120px;
+      margin: 5px;
+      border: 1px solid #ccc;
     }
+    #images {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
   </style>
 </head>
 <body>
-  <h2>Photobooth</h2>
-  <video id="video" width="640" height="480" autoplay></video>
-  <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
 
-  <div id="controls">
-    <button id="btnCapture">Chụp ảnh</button>
+<h2>Photobooth - Chụp ảnh</h2>
+<div id="main">
+  <div>
+    <video id="video" autoplay></video><br>
+    <button id="capture-btn">Chụp ảnh</button>
+    <canvas id="canvas" style="display:none;"></canvas>
   </div>
+  <!-- <div id="gallery">
+    <h3>Ảnh đã chụp</h3>
+    <div id="images"></div>
+  </div> -->
+</div>
 
-  <div id="nontification"></div>
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const sessionId = urlParams.get('session_id') || localStorage.getItem('session_id');
 
-  <script>
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const btn = document.getElementById('btnCapture');
-    const nonti = document.getElementById('nontification');
+  if (!sessionId) {
+      alert("Không tìm thấy session ID!");
+      window.location.href = "index.html";
+  }
 
-    // Bật webcam
-    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-      .then(stream => {
-        video.srcObject = stream;
+  const video = document.getElementById("video");
+  const canvas = document.getElementById("canvas");
+  const captureBtn = document.getElementById("capture-btn");
+  const imagesDiv = document.getElementById("images");
+
+  // Bật webcam
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => {
+      video.srcObject = stream;
+    })
+    .catch(err => {
+      console.error("Không thể truy cập webcam:", err);
+    });
+
+  captureBtn.addEventListener("click", () => {
+    const context = canvas.getContext("2d");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob((blob) => {
+      const formData = new FormData();
+      const timestamp = new Date().toISOString().replace(/[-:.]/g, "").slice(0, 15);
+      formData.append("image", blob, `${timestamp}.jpg`);
+
+      fetch(`http://localhost:8000/api/v1/sessions/${sessionId}/capture`, {
+        method: "POST",
+        body: formData
+      })
+      .then(response => {
+        if (!response.ok) throw new Error("Lỗi khi gửi ảnh");
+        return response.json();
+      })
+      .then(() => {
+        loadGallery(); // Load lại ảnh sau khi chụp
+      })
+      .catch(error => {
+        console.error("Lỗi:", error);
+      });
+    }, "image/jpeg");
+  });
+
+  // Load gallery
+  function loadGallery() {
+    fetch(`http://localhost:8000/api/v1/sessions/${sessionId}/images`)
+      .then(response => response.json())
+      .then(data => {
+        imagesDiv.innerHTML = "";
+        data.images.forEach(imgUrl => {
+          const img = document.createElement("img");
+          img.src = imgUrl + `?t=${Date.now()}`; // cache busting
+          imagesDiv.appendChild(img);
+        });
       })
       .catch(err => {
-        console.error("Không thể truy cập webcam:", err);
+        console.error("Lỗi khi load gallery:", err);
       });
+  }
 
-    btn.addEventListener('click', () => {
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  // Load ảnh khi vào trang
+  loadGallery();
+</script>
 
-      canvas.toBlob(blob => {
-        const formData = new FormData();
-        const filename = `capture_${Date.now()}.png`;
-        formData.append('file', blob, filename);
-
-        fetch('/capture', {
-          method: 'POST',
-          body: formData
-        })
-        .then(resp => resp.json())
-        .then(data => {
-          if (data.status === 'success') {
-            console.log('Lưu ảnh thành công: ' + data.filename);
-          } else {
-            console.log('Lưu ảnh thất bại');
-          }
-        })
-        .catch(err => {
-          console.error("Lỗi khi gửi ảnh:", err);
-        });
-      }, 'image/png');
-    });
-  </script>
 </body>
 </html>
