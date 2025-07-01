@@ -38,7 +38,6 @@ const Home = () => {
 
   return (
     <section className="min-h-screen flex items-center justify-center bg-[#FFFBEA]">
-    <section className="min-h-screen flex items-center justify-center bg-[#FFFBEA]">
       <div className="flex flex-col items-center justify-center text-center space-y-6 cursor-pointer">
         <img src={picperfect} alt="Logo" className="w-[60%] max-w-md h-auto bg-[#FFFBEA] p-2 rounded-lg" />
         <div className="w-[1200px] h-[700px] relative">
