@@ -57,6 +57,7 @@ def get_frame_family(frame_family_id: str):
 def select_frame(session_id: str, req: SelectFrameRequest):
     session_dir = f'images/{session_id}'
     options = FRAME_FAMILIES[req.frame_family_id].options
+    family = FRAME_FAMILIES[req.frame_family_id]
     selected = next((opt for opt in options if opt.id == req.frame_option_id), None)
     if not os.path.exists(session_dir):
         raise HTTPException(status_code=404, detail="Session không tồn tại")
@@ -64,6 +65,9 @@ def select_frame(session_id: str, req: SelectFrameRequest):
         raise HTTPException(status_code=404, detail="Frame family không hợp lệ")
     if not selected:
         raise HTTPException(status_code=400, detail="Frame option không hợp lệ cho family này")
+
+    photo_w = family.width // selected.cols
+    photo_h = family.height // selected.rows
 
     return JSONResponse(
         status_code=200,
@@ -75,6 +79,10 @@ def select_frame(session_id: str, req: SelectFrameRequest):
             "cols": selected.cols,
             "rows": selected.rows,
             "ratio": selected.ratio,
+            "frame_width": family.width,
+            "frame_height": family.height,
+            "photo_width": photo_w,
+            "photo_height": photo_h
         }
     )
 
@@ -87,8 +95,6 @@ async def capture_image(session_id: str = Path(..., description="Session ID"), i
     session_path = f"images/{session_id}"
     if not os.path.exists(session_path):
         raise HTTPException(status_code=404, detail="Session ID not found")
-    print(image.filename)
-    print(type(image.filename))
     image_path = os.path.join(session_path, image.filename)
     with open(image_path, 'wb') as buffer:
         buffer.write(await image.read())

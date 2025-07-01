@@ -14,6 +14,8 @@ class FrameOption(BaseModel):
 class FrameFamily(BaseModel):
     id: str
     label: str
+    width: int
+    height: int
     options: List[FrameOption]
 
 class SelectFrameRequest(BaseModel):
@@ -26,6 +28,8 @@ FRAME_FAMILIES: Dict[str, FrameFamily] = {
     "frame2x6": FrameFamily(
         id="frame2x6",
         label="Khung 2×6",
+        width=600,
+        height=1800,
         options=[
             FrameOption(id=str(uuid4()), label="2×6 – 3 ảnh", cols=1, rows=3, ratio=1/3),
             FrameOption(id=str(uuid4()), label="2×6 – 4 ảnh", cols=1, rows=4, ratio=1/4),
@@ -34,6 +38,8 @@ FRAME_FAMILIES: Dict[str, FrameFamily] = {
     "frame4x6": FrameFamily(
         id="frame4x6",
         label="Khung 4×6",
+        width=1200,
+        height=1800,
         options=[
             FrameOption(id=str(uuid4()), label="4×6 – 4 ảnh", cols=2, rows=2, ratio=2/2),
             FrameOption(id=str(uuid4()), label="4×6 – 5 ảnh", cols=2, rows=3, ratio=2/3),
