@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router';
 import Webcam from 'react-webcam';
-import picperfect from "../assets/picperfect.png.png"
+import picperfect from "../../assets/picperfect.png";
 
 const videoConstraints = {
   width: 1000,
@@ -12,13 +12,13 @@ const Home = () => {
   const navigate = useNavigate();
 
   const handleStart = () => {
-    navigate('/camera');
+    navigate('/frame');
   };
 
   return (
-   <section className="min-h-screen flex items-center justify-center bg-[#FFFBEA]">
+    <section className="min-h-screen flex items-center justify-center bg-[#FFFBEA]">
       <div className="flex flex-col items-center justify-center text-center space-y-6 cursor-pointer">
-        <img src={picperfect} alt="Logo" className="w-[60%] max-w-md h-auto bg-[#FFFBEA] p-2 rounded-lg"/>
+        <img src={picperfect} alt="Logo" className="w-[60%] max-w-md h-auto bg-[#FFFBEA] p-2 rounded-lg" />
         <div className="w-[1200px] h-[700px] relative">
           <Webcam
             audio={false}
@@ -27,12 +27,9 @@ const Home = () => {
             className="w-full h-full object-cover rounded-lg shadow-md"
           />
         </div>
-    <button onClick={handleStart} className="px-8 py-3 border-2 border-[#1F3A63] text-[#1F3A63] font-bold text-3xl rounded-full hover:bg-[#1F3A63]/10 transition duration-200 mt-4">
-        Chạm để bắt đầu
-    </button>
-
-
-
+        <button onClick={handleStart} className="px-8 py-3 border-2 border-[#1F3A63] text-[#1F3A63] font-bold text-3xl rounded-full hover:bg-[#1F3A63]/10 transition duration-200 mt-4">
+          Chạm để bắt đầu
+        </button>
       </div>
     </section>
   );
