@@ -1,14 +1,18 @@
-import os
 import json
+import os
+import io
 import shutil
+from datetime import datetime
 from pprint import pprint
 from typing import List, Dict
 from uuid import uuid4
+from PIL import Image
 from fastapi import FastAPI, File, UploadFile, HTTPException, Path
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from utils.frame_images import FrameFamily, FRAME_FAMILIES, SelectFrameRequest
+from utils.factory import PictureFactory
 
 app = FastAPI()
 
@@ -22,35 +26,59 @@ app.add_middleware(
 sessions: Dict[str, dict] = {}
 
 
+def update_session_meta(session_id: str, update_data: dict):
+    meta_path = f'images/{session_id}/{session_id}.json'
+    if not os.path.exists(meta_path):
+        raise ValueError("Session không tồn tại")
+
+    with open(meta_path, "r", encoding="utf-8") as f:
+        session_meta = json.load(f)
+
+    session_meta.update(update_data)
+
+    with open(meta_path, "w", encoding="utf-8") as f:
+        json.dump(session_meta, f, indent=4, ensure_ascii=False)
+
+    if session_id in sessions:
+        sessions[session_id].update(update_data)
+
+
 @app.post("/sessions", status_code=201)
 def create_session():
     session_id = str(uuid4())
-    os.makedirs(f'images/{session_id}', exist_ok=True)
+    session_dir = f'images/{session_id}'
+    os.makedirs(session_dir, exist_ok=True)
+    session_meta = {
+        "session_id": session_id,
+        "created_at": datetime.now().isoformat(),
+        "frame_family_id": None,
+        "frame_option_id": None,
+        "cols": None,
+        "rows": None,
+        "ratio": None,
+        "frame_width": None,
+        "frame_height": None,
+        "photo_width": None,
+        "photo_height": None
+    }
+    meta_path = os.path.join(session_dir, f"{session_id}.json")
+    with open(meta_path, "w", encoding="utf-8") as f:
+        json.dump(session_meta, f, indent=4, ensure_ascii=False)
+    sessions[session_id] = session_meta
     return JSONResponse(
         content={
             "session_id": session_id,
-            "message": "Session created successfully",
+            "message": "Session was created successfully",
         }
     )
 
 
-@app.get("/frames/", response_model=List[FrameFamily])
-def list_frame_families():
+@app.get("/frames", response_model=List[FrameFamily])
+def list_frame():
     """
     Return list of frames, and frame families
     """
     return list(FRAME_FAMILIES.values())
-
-
-@app.get("/frames/{frame_family_id}", response_model=FrameFamily)
-def get_frame_family(frame_family_id: str):
-    """
-    Return frame detail
-    """
-    family = FRAME_FAMILIES.get(frame_family_id)
-    if not family:
-        raise HTTPException(status_code=404, detail="Frame family không tồn tại")
-    return family
 
 
 @app.post("/sessions/{session_id}/select-frame")
@@ -68,6 +96,18 @@ def select_frame(session_id: str, req: SelectFrameRequest):
 
     photo_w = family.width // selected.cols
     photo_h = family.height // selected.rows
+
+    update_session_meta(session_id, {
+        "frame_family_id": req.frame_family_id,
+        "frame_option_id": req.frame_option_id,
+        "cols": selected.cols,
+        "rows": selected.rows,
+        "ratio": selected.ratio,
+        "frame_width": family.width,
+        "frame_height": family.height,
+        "photo_width": photo_w,
+        "photo_height": photo_h,
+    })
 
     return JSONResponse(
         status_code=200,
@@ -103,7 +143,7 @@ async def capture_image(session_id: str = Path(..., description="Session ID"), i
     return JSONResponse(
         content={
             "filename": image.filename,
-            "url": image_path,
+            "url": f"http://localhost:8000/images/{image_path}",
             "status": True
         }
     )
@@ -121,24 +161,97 @@ def list_images(session_id: str):
     return {"images": image_urls}
 
 
-@app.get("/images/{session_id}/{filename}")
-def get_image(session_id: str, filename: str):
-    file_path = f'images/{session_id}/{filename}'
-    if not os.path.exists(file_path):
-        raise HTTPException(status_code=404, detail="Image not found")
-    return FileResponse(file_path)
+@app.post("/sessions/{session_id}/upload-photos")
+async def upload_photos(
+        session_id: str,
+        files: List[UploadFile] = File(...)
+):
+    session_dir = f"images/{session_id}"
+    save_selected = os.path.join(session_dir, "selected")
+    os.makedirs(save_selected, exist_ok=True)
+    if not os.path.exists(session_dir):
+        raise HTTPException(404, "Session không tồn tại")
+
+    uploaded_files = []
+    for idx, file in enumerate(files):
+        ext = os.path.splitext(file.filename)[-1].lower()
+        filename = f"{idx + 1:02d}{ext}"
+        file_path = os.path.join(save_selected, filename)
+        data = await file.read()
+        with open(file_path, "wb") as f:
+            f.write(data)
+        uploaded_files.append(filename)
+
+    return JSONResponse(
+        status_code=201,
+        content={
+            "message": f"Đã upload {len(uploaded_files)} ảnh thành công",
+            "files": uploaded_files
+        }
+    )
 
 
-@app.get("/sessions/{session_id}/images/{filename}/download")
-def download_image(session_id: str, filename: str):
-    file_path = f"images/{session_id}/{filename}"
-    if not os.path.exists(file_path):
-        raise HTTPException(status_code=404, detail="Image not found")
+@app.post("/sessions/{session_id}/compose", status_code=200)
+def compose_images(
+        session_id: str,
+        file_list: List[str],
+        margin: int = 0
+):
+    session_dir = f"images/{session_id}"
+    save_selected = os.path.join(session_dir, "selected")
+    os.makedirs(save_selected, exist_ok=True)
+    if not os.path.exists(session_dir):
+        raise HTTPException(404, "Session không tồn tại")
+
+    meta = sessions.get(session_id, {})
+    cols = meta.get("cols")
+    rows = meta.get("rows")
+    frame_w = meta.get("frame_width")
+    frame_h = meta.get("frame_height")
+    print(meta)
+    if not all([cols, rows, frame_w, frame_h]):
+        raise HTTPException(400, "Session chưa chọn frame hoặc thiếu metadata")
+
+    images = []
+    for filename in file_list:
+        img_path = os.path.join(save_selected, filename)
+        if not os.path.exists(img_path):
+            raise HTTPException(400, f"Ảnh {filename} không tồn tại")
+        images.append(Image.open(img_path).convert("RGB"))
+
+    factory = PictureFactory(
+        images=images,
+        frame_w=frame_w,
+        frame_h=frame_h,
+        layout=(cols, rows),
+        margin=margin
+    )
+    composed = factory.compose_photos()
+    composed.save(f"{os.path.join(session_dir, "result.jpeg")}")
+
+    buf = io.BytesIO()
+    composed.save(buf, format="JPEG")
+    buf.seek(0)
+    return StreamingResponse(buf, media_type="image/jpeg")
+
+
+@app.get("/sessions/{session_id}/download", response_class=FileResponse)
+def download_composed_image(session_id: str = Path(..., description="Session ID")):
+    """
+    Trả về file JPEG đã ghép (result.jpeg) để client có thể download.
+    """
+    session_dir = f"images/{session_id}"
+    result_path = os.path.join(session_dir, "result.jpeg")
+
+    if not os.path.exists(session_dir):
+        raise HTTPException(status_code=404, detail="Session không tồn tại")
+    if not os.path.isfile(result_path):
+        raise HTTPException(status_code=404, detail="Chưa có ảnh kết quả hoặc file bị thiếu")
 
     return FileResponse(
-        path=file_path,
-        media_type="application/octet-stream",
-        filename=filename
+        path=result_path,
+        media_type="image/jpeg",
+        filename=f"{session_id}_result.jpeg"
     )
 
 

@@ -32,7 +32,7 @@ FRAME_FAMILIES: Dict[str, FrameFamily] = {
         height=1800,
         options=[
             FrameOption(id=str(uuid4()), label="2×6 – 3 ảnh", cols=1, rows=3, ratio=1/3),
-            FrameOption(id=str(uuid4()), label="2×6 – 4 ảnh", cols=1, rows=4, ratio=1/4),
+            FrameOption(id=str(uuid4()), label="2×6 – 4 ảnh", cols=1, rows=4, ratio=1/3),
         ],
     ),
     "frame4x6": FrameFamily(
@@ -41,9 +41,9 @@ FRAME_FAMILIES: Dict[str, FrameFamily] = {
         width=1200,
         height=1800,
         options=[
-            FrameOption(id=str(uuid4()), label="4×6 – 4 ảnh", cols=2, rows=2, ratio=2/2),
+            FrameOption(id=str(uuid4()), label="4×6 – 4 ảnh", cols=2, rows=2, ratio=2/3),
             FrameOption(id=str(uuid4()), label="4×6 – 5 ảnh", cols=2, rows=3, ratio=2/3),
-            FrameOption(id=str(uuid4()), label="4×6 – 6 ảnh", cols=3, rows=2, ratio=3/2),
+            FrameOption(id=str(uuid4()), label="4×6 – 6 ảnh", cols=3, rows=2, ratio=2/3),
         ],
     ),
 }
