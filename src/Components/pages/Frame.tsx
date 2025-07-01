@@ -20,7 +20,7 @@ const Frame = () => {
         <BackButton />
         <NextButton />
       </div>
-      </div> 
+      </div>
     </>
   );
 };

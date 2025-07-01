@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router';
-import picperfect from '../../assets/picperfect.png.png'
+import picperfect from "../../assets/picperfect.png";
 import CustomWebcam from '../ui/Webcam';
 
 const Home = () => {
@@ -19,7 +19,6 @@ const Home = () => {
         alt="Logo"
         className="w-[300px] h-auto bg-[#FFFBEA]"
       />
-
       <CustomWebcam width={width} height={height} />
 
       <button
