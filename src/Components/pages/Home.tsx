@@ -25,7 +25,7 @@ const HomePage = () => {
         onClick={handleStart}
         className="px-8 py-3 border-2 border-[#1F3A63] text-[#1F3A63] font-bold text-3xl rounded-full hover:bg-[#1F3A63]/10 cursor-pointer"
       >
-        Chạm để bắt đầu
+        Chạm Để Bắt Đầu
       </button>
     </div>
   );

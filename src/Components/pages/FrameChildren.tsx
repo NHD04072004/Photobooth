@@ -36,10 +36,10 @@ const FrameChildrenPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFFBEA] p-10 flex flex-col justify-between">
-      <h1 className="text-6xl mb-8 ">Chọn khung ảnh</h1>
+    <div className="min-h-screen p-5 flex flex-col justify-between">
+      <h1 className="text-6xl mb-8 ">Chọn Khung Ảnh</h1>
 
-      <div className="flex justify-center items-end gap-x-32">
+      <div className="flex justify-center mt-10 items-end gap-x-32">
         {frameOptions && frameOptions.length > 0 &&
           frameOptions.map((frame) =>
           (

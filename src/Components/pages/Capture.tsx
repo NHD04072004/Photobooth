@@ -23,7 +23,7 @@ const CapturePage = () => {
   };
 
   const handleNext = () => {
-    if(images.length === 0) {
+    if (images.length === 0) {
       alert('Vui lòng chụp ảnh trước khi tiếp tục!');
       return;
     }
@@ -33,14 +33,19 @@ const CapturePage = () => {
   };
 
   return (
-    <>
-      <div className="my-10 mx-7">
+    <div className="flex flex-col items-center justify-center py-10">
+      <h1 className="text-5xl mb-6">
+        Chụp Ảnh Với Khung
+      </h1>
+
+      <div className="rounded-2xl shadow-xl overflow-hidden  ">
         <CustomWebcam width={width} height={height} totalShots={totalShots} isCapture={true} images={images} setImages={setImages} />
       </div>
 
-      <BackNextButton onBack={handleBack}  onNext={handleNext} />
-    </>
-  )
-}
+      <BackNextButton onBack={handleBack} onNext={handleNext} />
+    </div>
+  );
+};
 
 export default CapturePage;
+
