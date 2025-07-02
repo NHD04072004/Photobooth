@@ -1,5 +1,5 @@
 .idea
 test.py
 images
-__pycache__
+__pycache__/
 service_account.json
