@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 import DynamicFrame from '../ui/DynamicFrame';
 import BackNextButton from '../ui/BackNextButton';
 import type { Frame } from '../../interface';
-
+import Swal from 'sweetalert2';
 const frameData = [
   {
     id: 'frame2x6',
@@ -65,13 +65,18 @@ const FramePage = () => {
 
   const handleNext = () => {
     if (!selectedFrame) {
-      alert('Vui lòng chọn một khung ảnh!');
-      return;
-    }
+    Swal.fire({
+      icon: 'warning',
+      title: 'Bạn chưa chọn khung ảnh!',
+      text: 'Vui lòng chọn một khung ảnh trước khi tiếp tục.',
+      confirmButtonText: 'Tôi hiểu',
+      confirmButtonColor: '#e63946',
+    });
+    return;
+  }
 
-    localStorage.setItem('selectedFrame', JSON.stringify(selectedFrame));
-
-    navigate(`/frame/${selectedFrame.id}`);
+  localStorage.setItem('selectedFrame', JSON.stringify(selectedFrame));
+  navigate(`/frame/${selectedFrame.id}`);
   }
 
   const handleBack = () => {
@@ -79,10 +84,10 @@ const FramePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFFBEA] p-10 flex flex-col justify-between">
+    <div className="min-h-screen p-5 flex flex-col justify-between">
       <h1 className="text-6xl mb-8 ">Chọn khung ảnh</h1>
 
-      <div className="flex justify-center items-end gap-x-32">
+      <div className="flex justify-center mt-10 items-end gap-x-32">
         {frameData.map(frame => (
           <div
             key={frame.id}
@@ -101,7 +106,7 @@ const FramePage = () => {
         ))}
       </div>
 
-      <div className="flex justify-between mt-10">
+      <div className="flex justify-between ">
         <BackNextButton onBack={handleBack} onNext={handleNext} />
       </div>
     </div>
