@@ -8,7 +8,6 @@ class FrameOption(BaseModel):
     label: str
     cols: int
     rows: int
-    ratio: float  # cols/rows
 
 
 class FrameFamily(BaseModel):
@@ -16,6 +15,7 @@ class FrameFamily(BaseModel):
     label: str
     width: int
     height: int
+    cols: int
     options: List[FrameOption]
 
 class SelectFrameRequest(BaseModel):
@@ -30,9 +30,10 @@ FRAME_FAMILIES: Dict[str, FrameFamily] = {
         label="Khung 2×6",
         width=600,
         height=1800,
+        cols=1,
         options=[
-            FrameOption(id=str(uuid4()), label="2×6 – 3 ảnh", cols=1, rows=3, ratio=1/3),
-            FrameOption(id=str(uuid4()), label="2×6 – 4 ảnh", cols=1, rows=4, ratio=1/3),
+            FrameOption(id=str(uuid4()), label="2×6 – 3 ảnh", cols=1, rows=3),
+            FrameOption(id=str(uuid4()), label="2×6 – 4 ảnh", cols=1, rows=4),
         ],
     ),
     "frame4x6": FrameFamily(
@@ -40,10 +41,11 @@ FRAME_FAMILIES: Dict[str, FrameFamily] = {
         label="Khung 4×6",
         width=1200,
         height=1800,
+        cols=2,
         options=[
-            FrameOption(id=str(uuid4()), label="4×6 – 4 ảnh", cols=2, rows=2, ratio=2/3),
-            FrameOption(id=str(uuid4()), label="4×6 – 5 ảnh", cols=2, rows=3, ratio=2/3),
-            FrameOption(id=str(uuid4()), label="4×6 – 6 ảnh", cols=3, rows=2, ratio=2/3),
+            FrameOption(id=str(uuid4()), label="4×6 – 4 ảnh", cols=2, rows=2),
+            FrameOption(id=str(uuid4()), label="4×6 – 5 ảnh", cols=2, rows=3),
+            FrameOption(id=str(uuid4()), label="4×6 – 6 ảnh", cols=2, rows=3),
         ],
     ),
 }

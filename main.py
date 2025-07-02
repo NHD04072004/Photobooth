@@ -24,6 +24,7 @@ app.add_middleware(
     allow_credentials=True,
 )
 sessions: Dict[str, dict] = {}
+MARGIN: int = 10
 
 
 def update_session_meta(session_id: str, update_data: dict):
@@ -94,15 +95,16 @@ def select_frame(session_id: str, req: SelectFrameRequest):
     if not selected:
         raise HTTPException(status_code=400, detail="Frame option không hợp lệ cho family này")
 
-    photo_w = family.width // selected.cols
-    photo_h = family.height // selected.rows
+    photo_w = (family.width - (selected.cols + 1) * MARGIN) // selected.cols
+    photo_h = (family.height - (selected.rows + 1) * MARGIN) // selected.rows
+    ratio = photo_w / photo_h
 
     update_session_meta(session_id, {
         "frame_family_id": req.frame_family_id,
         "frame_option_id": req.frame_option_id,
         "cols": selected.cols,
         "rows": selected.rows,
-        "ratio": selected.ratio,
+        "ratio": ratio,
         "frame_width": family.width,
         "frame_height": family.height,
         "photo_width": photo_w,
@@ -118,7 +120,7 @@ def select_frame(session_id: str, req: SelectFrameRequest):
             "frame_option_id": req.frame_option_id,
             "cols": selected.cols,
             "rows": selected.rows,
-            "ratio": selected.ratio,
+            "ratio": ratio,
             "frame_width": family.width,
             "frame_height": family.height,
             "photo_width": photo_w,
@@ -195,7 +197,6 @@ async def upload_photos(
 def compose_images(
         session_id: str,
         file_list: List[str],
-        margin: int = 0
 ):
     session_dir = f"images/{session_id}"
     save_selected = os.path.join(session_dir, "selected")
@@ -224,7 +225,7 @@ def compose_images(
         frame_w=frame_w,
         frame_h=frame_h,
         layout=(cols, rows),
-        margin=margin
+        margin=MARGIN
     )
     composed = factory.compose_photos()
     composed.save(f"{os.path.join(session_dir, "result.jpeg")}")
