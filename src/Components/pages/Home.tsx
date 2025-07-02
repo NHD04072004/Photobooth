@@ -5,7 +5,7 @@ import CustomWebcam from '../ui/Webcam';
 const Home = () => {
   const navigate = useNavigate();
 
-  const width = window.innerWidth * 0.6;
+  const width = window.innerWidth * 0.8;
   const height = window.innerHeight * 0.6;
 
   const handleStart = () => {
@@ -19,7 +19,6 @@ const Home = () => {
         alt="Logo"
         className="w-[300px] h-auto bg-[#FFFBEA]"
       />
-
       <CustomWebcam width={width} height={height} />
 
       <button

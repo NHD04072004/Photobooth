@@ -2,6 +2,8 @@ import type React from 'react';
 import { useRef, useState } from 'react';
 import Webcam from 'react-webcam';
 import CountDown from './CountDown';
+import ButtonCapture from './ButtonCapture';
+import ImagesGallery from './ImagesGallery';
 
 interface CustomWebcamProp {
   width: number;
@@ -9,6 +11,7 @@ interface CustomWebcamProp {
   facingMode?: string;
   totalShots?: number;
   countdownSeconds?: number;
+  isCapture?: boolean;
 }
 
 const CustomWebcam: React.FC<CustomWebcamProp> = ({
@@ -17,6 +20,7 @@ const CustomWebcam: React.FC<CustomWebcamProp> = ({
   facingMode = 'user',
   totalShots = 4,
   countdownSeconds = 5,
+  isCapture = false
 }) => {
   const videoConstraints = {
     width,
@@ -60,27 +64,31 @@ const CustomWebcam: React.FC<CustomWebcamProp> = ({
   };
 
   return (
-    <div className="relative w-fit">
-      <Webcam
-        ref={webcamRef}
-        audio={false}
-        mirrored={true}
-        width={width}
-        height={height}
-        screenshotFormat="image/png"
-        videoConstraints={videoConstraints}
-        className="object-cover rounded-lg border"
-      />
+    <div className="flex gap-6">
+      {/* Webcam Section */}
+      <div className="relative">
+        <Webcam
+          ref={webcamRef}
+          audio={false}
+          mirrored={true}
+          width={width}
+          height={height}
+          screenshotFormat="image/png"
+          videoConstraints={videoConstraints}
+          className="object-cover rounded-lg border shadow-lg"
+        />
 
-      {countdown && <CountDown countdown={countdown} />}
+        {countdown && <CountDown countdown={countdown} />}
 
-      <button
-        onClick={startCapture}
-        disabled={isCapturing}
-        className={`mt-2 px-4 py-2 rounded w-full ${isCapturing ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white'}`}
-      >
-        ▶️ {isCapturing ? 'Đang chụp...' : `Bắt đầu chụp ${totalShots} ảnh`}
-      </button>
+        {isCapture && (
+          <ButtonCapture startCapture={startCapture} isCapturing={isCapturing} totalShots={totalShots} />
+        )}
+      </div>
+
+      {/* Images Gallery Section */}
+      {images.length > 0 && (
+        <ImagesGallery images={images} totalShots={totalShots} width={width} height={height}/>
+      )}
     </div>
   );
 };
