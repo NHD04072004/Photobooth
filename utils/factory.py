@@ -36,6 +36,7 @@ class PictureFactory:
         thumb_w = (self.frame_w - (self.cols + 1) * self.margin) // self.cols
         thumb_h = (self.frame_h - (self.rows + 1) * self.margin) // self.rows
         print(thumb_w, thumb_h)
+        print(thumb_w/thumb_h)
 
         for idx, img in enumerate(self.images):
             if idx >= self.cols * self.rows:
@@ -59,10 +60,10 @@ if __name__ == "__main__":
     os.makedirs("test_outputs", exist_ok=True)
 
     photos = [
-        "utils/20250628T063635.jpg",
-        "utils/20250628T063636.jpg",
-        "utils/20250628T063638.jpg",
-        "utils/20250628T063639.jpg",
+        "1.jpg",
+        "2.jpeg",
+        "3.jpeg",
+        # "utils/20250628T063639.jpg",
         # "utils/20250628T063637.jpg"
     ]
     photos = [Image.open(photo) for photo in photos]
@@ -70,7 +71,7 @@ if __name__ == "__main__":
     # 4x6: width = 600, height: 900
     # => theo tỉ lệ mà nhân lên, theo khổ giấy thực
     # layout = (col, row)
-    factory = PictureFactory(photos, 300, 900, (1, 4), 3)
+    factory = PictureFactory(photos, 300, 900, (1, 3), 10)
     composed = factory.compose_photos()
-    composed.save("test_outputs/test_compose.jpg")
+    composed.save("test_compose.jpg")
     print("→ Đã lưu test_compose.jpg")

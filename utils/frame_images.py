@@ -8,6 +8,7 @@ class FrameOption(BaseModel):
     label: str
     cols: int
     rows: int
+    ratio: float
 
 
 class FrameFamily(BaseModel):
@@ -32,8 +33,8 @@ FRAME_FAMILIES: Dict[str, FrameFamily] = {
         height=1800,
         cols=1,
         options=[
-            FrameOption(id=str(uuid4()), label="2×6 – 3 ảnh", cols=1, rows=3),
-            FrameOption(id=str(uuid4()), label="2×6 – 4 ảnh", cols=1, rows=4),
+            FrameOption(id=str(uuid4()), label="2×6 – 3 ảnh", cols=1, rows=3, ratio=0.9897610921501706),
+            FrameOption(id=str(uuid4()), label="2×6 – 4 ảnh", cols=1, rows=4, ratio=1.3272311212814645),
         ],
     ),
     "frame4x6": FrameFamily(
@@ -43,9 +44,9 @@ FRAME_FAMILIES: Dict[str, FrameFamily] = {
         height=1800,
         cols=2,
         options=[
-            FrameOption(id=str(uuid4()), label="4×6 – 4 ảnh", cols=2, rows=2),
-            FrameOption(id=str(uuid4()), label="4×6 – 5 ảnh", cols=2, rows=3),
-            FrameOption(id=str(uuid4()), label="4×6 – 6 ảnh", cols=2, rows=3),
+            FrameOption(id=str(uuid4()), label="4×6 – 4 ảnh", cols=2, rows=2, ratio=0.6610169491525424),
+            # FrameOption(id=str(uuid4()), label="4×6 – 5 ảnh", cols=2, rows=3, ratio=),
+            FrameOption(id=str(uuid4()), label="4×6 – 6 ảnh", cols=2, rows=3, ratio=0.9982935153583617),
         ],
     ),
 }
