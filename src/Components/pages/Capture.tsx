@@ -1,8 +1,11 @@
+import { useParams } from "react-router";
 import CustomWebcam from "../ui/Webcam";
 
-const Capture = () => {
+const CapturePage = () => {
   const width = window.innerHeight * 0.8;
   const height = window.innerHeight * 0.8;
+
+  const { id } = useParams();
 
   return (
     <>
@@ -13,4 +16,4 @@ const Capture = () => {
   )
 }
 
-export default Capture;
+export default CapturePage;

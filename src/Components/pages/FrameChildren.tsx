@@ -1,0 +1,68 @@
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
+import DynamicFrame from '../ui/DynamicFrame';
+import BackNextButton from '../ui/BackNextButton';
+import type { FrameOption } from '../../interface';
+
+const FrameChildrenPage = () => {
+  const navigate = useNavigate();
+  const [selectedFrame, setSelectedFrame] = useState<FrameOption>();
+  const [frameOptions, setFrameOptions] = useState<FrameOption[]>([]);
+
+  useEffect(() => {
+    const storedFrame = localStorage.getItem('selectedFrame');
+    if (storedFrame) {
+      setFrameOptions(JSON.parse(storedFrame).options);
+    }
+  }, []);
+
+  const handleSelect = (frame: FrameOption) => {
+    setSelectedFrame(frame);
+  };
+
+  const handleNext = () => {
+    if (!selectedFrame) {
+      alert('Vui lòng chọn một khung ảnh!');
+      return;
+    }
+
+    navigate(`/capture/${selectedFrame.id}`);
+  }
+
+  const handleBack = () => {
+    navigate('/frame');
+  };
+
+  return (
+    <div className="min-h-screen bg-[#FFFBEA] p-10 flex flex-col justify-between">
+      <h1 className="text-6xl mb-8 ">Chọn khung ảnh</h1>
+
+      <div className="flex justify-center items-end gap-x-32">
+        {frameOptions && frameOptions.length > 0 &&
+          frameOptions.map((frame) =>
+          (
+            <div
+              key={frame.id}
+              className="flex flex-col items-center gap-6 cursor-pointer"
+              onClick={() => handleSelect(frame)}
+            >
+              <DynamicFrame
+                colsNumber={frame.cols}
+                itemsLength={frame.cols * frame.rows}
+                width={100}
+                ratio={1.5}
+                isSelected={selectedFrame && selectedFrame.id === frame.id}
+              />
+            </div>
+          )
+          )}
+      </div>
+
+      <div className="flex justify-between mt-10">
+        <BackNextButton onBack={handleBack} onNext={handleNext} />
+      </div>
+    </div>
+  );
+};
+
+export default FrameChildrenPage;

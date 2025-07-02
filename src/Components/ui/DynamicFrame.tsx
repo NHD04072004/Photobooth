@@ -1,22 +1,45 @@
+import React from 'react';
+
 interface DynamicFrameProp {
   colsNumber: number;
   itemsLength: number;
-  ratio: string;
-  width: number;
+  ratio: number;
+  width: number; 
+  isSelected?: boolean;
+  onClick?: () => void;
 }
 
-const DynamicFrame: React.FC<DynamicFrameProp> = ({ colsNumber, itemsLength, width, ratio }) => {
+const DynamicFrame: React.FC<DynamicFrameProp> = ({
+  colsNumber,
+  itemsLength,
+  ratio,
+  width,
+  isSelected = false,
+  onClick,
+}) => {
   return (
-    <div className={`relative bg-black grid p-[5px] gap-[5px] h-fit w-fit`} style={{ gridTemplateColumns: `repeat(${colsNumber}, minmax(0, 1fr))` }}>
+    <div
+      onClick={onClick}
+      className={`relative grid bg-black p-1 gap-1 cursor-pointer rounded-md transition-transform ${isSelected ? 'ring-4 ring-blue-500 scale-105' : 'ring-2 ring-transparent'
+        }`}
+      style={{
+        gridTemplateColumns: `repeat(${colsNumber}, 1fr)`,
+      }}
+    >
       {Array.from({ length: itemsLength }).map((_, i) => (
-        <div key={i} className="col-span-1 bg-white" style={{ width: width, aspectRatio: ratio }}></div>
+        <div
+          key={i}
+          className="bg-white"
+          style={{ aspectRatio: ratio, width: width }}
+        />
       ))}
 
-      <div className={`w-full`} style={{ gridColumn: `span ${colsNumber} / span ${colsNumber}` }}>
-        <div className="bg-white aspect-square w-4 ml-auto"> </div>
-      </div>
+      <div
+        className="bg-white aspect-square w-4 absolute bottom-1 right-1"
+        style={{ gridColumn: `span ${colsNumber}` }}
+      />
     </div>
-  )
-}
+  );
+};
 
 export default DynamicFrame;

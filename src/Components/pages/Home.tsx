@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router';
 import picperfect from "../../assets/picperfect.png";
 import CustomWebcam from '../ui/Webcam';
 
-const Home = () => {
+const HomePage = () => {
   const navigate = useNavigate();
 
   const width = window.innerWidth * 0.8;
@@ -31,4 +31,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default HomePage;

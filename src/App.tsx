@@ -1,16 +1,17 @@
 import { Routes, Route } from 'react-router';
-import Home from './Components/pages/Home';
-import Frame from './Components/pages/Frame';
+import HomePage from './Components/pages/Home';
 import "./App.css";
-import Capture from './Components/pages/Capture';
-
+import CapturePage from './Components/pages/Capture';
+import FrameChildrenPage from './Components/pages/FrameChildren';
+import FramePage from './Components/pages/Frame';
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/frame" element={<Frame />} />
-      <Route path="/capture/:id" element={<Capture />} />
+      <Route path="/" element={<HomePage />} />
+      <Route path="/frame" element={<FramePage />} />
+      <Route path="/frame/:id" element={<FrameChildrenPage />} />
+      <Route path="/capture/:id" element={<CapturePage />} />
       <Route path="" element />
     </Routes>
   );
