@@ -1,63 +1,27 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import DynamicFrame from '../ui/DynamicFrame';
 import BackNextButton from '../ui/BackNextButton';
 import type { Frame } from '../../interface';
-
-const frameData = [
-  {
-    id: 'frame2x6',
-    label: 'Khung 2×6',
-    width: 600,
-    height: 1800,
-    price: 70000,
-    cols: 1,
-    options: [
-      {
-        id: '8b593ab3-2215-479d-95d7-1b92cb337f97',
-        label: '2×6 – 3 ảnh',
-        cols: 1,
-        rows: 3,
-        ratio: 3 / 1,
-      },
-      {
-        id: '81b364b7-30d2-4132-b79b-bb32675e4c84',
-        label: '2×6 – 4 ảnh',
-        cols: 1,
-        rows: 4,
-        ratio: 3 / 1,
-      },
-    ],
-  },
-  {
-    id: 'frame4x6',
-    label: 'Khung 4×6',
-    width: 1200,
-    height: 1800,
-    price: 100000,
-    cols: 2,
-    options: [
-      {
-        id: 'ff27fe6f-a1f2-402e-ac1a-7c4c67a22c7d',
-        label: '4×6 – 4 ảnh',
-        cols: 2,
-        rows: 2,
-        ratio: 3 / 2,
-      },
-      {
-        id: '752f8dfc-c540-41ab-bd08-5e91365d23bc',
-        label: '4×6 – 5 ảnh',
-        cols: 2,
-        rows: 3,
-        ratio: 3 / 2,
-      }
-    ],
-  },
-];
+import { getAllFrames } from '../../api/frame';
 
 const FramePage = () => {
   const navigate = useNavigate();
   const [selectedFrame, setSelectedFrame] = useState<Frame>();
+  const [frameData, setFrameData] = useState<Frame[]>();
+
+  useEffect(() => {
+    const fetchFrames = async () => {
+      try {
+        const data = await getAllFrames();
+        setFrameData(data);
+      } catch (error) {
+        console.error('Error fetching frames:', error);
+      }
+    };
+
+    fetchFrames();
+  }, []);
 
   const handleSelect = (frame: Frame) => {
     setSelectedFrame(frame);
@@ -83,7 +47,7 @@ const FramePage = () => {
       <h1 className="text-6xl mb-8 ">Chọn khung ảnh</h1>
 
       <div className="flex justify-center items-end gap-x-32">
-        {frameData.map(frame => (
+        {frameData && frameData.map(frame => (
           <div
             key={frame.id}
             className="flex flex-col items-center gap-6 cursor-pointer"
@@ -96,7 +60,7 @@ const FramePage = () => {
               ratio={1.5}
               isSelected={selectedFrame && selectedFrame.id === frame.id}
             />
-            <p className="text-3xl">{frame.price.toLocaleString()} VND</p>
+            <p className="text-3xl"> VND</p>
           </div>
         ))}
       </div>

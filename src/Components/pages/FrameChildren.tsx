@@ -26,6 +26,8 @@ const FrameChildrenPage = () => {
       return;
     }
 
+    localStorage.setItem('selectedFrame', JSON.stringify(selectedFrame));
+
     navigate(`/capture/${selectedFrame.id}`);
   }
 

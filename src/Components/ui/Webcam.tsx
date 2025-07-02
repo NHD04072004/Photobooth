@@ -12,6 +12,8 @@ interface CustomWebcamProp {
   totalShots?: number;
   countdownSeconds?: number;
   isCapture?: boolean;
+  images?: string[];
+  setImages?: (images: string[]) => void;
 }
 
 const CustomWebcam: React.FC<CustomWebcamProp> = ({
@@ -20,7 +22,9 @@ const CustomWebcam: React.FC<CustomWebcamProp> = ({
   facingMode = 'user',
   totalShots = 4,
   countdownSeconds = 5,
-  isCapture = false
+  isCapture = false,
+  images = [],
+  setImages = () => {},
 }) => {
   const videoConstraints = {
     width,
@@ -29,7 +33,6 @@ const CustomWebcam: React.FC<CustomWebcamProp> = ({
   };
 
   const webcamRef = useRef<Webcam | null>(null);
-  const [images, setImages] = useState<string[]>([]);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isCapturing, setIsCapturing] = useState(false);
 
@@ -47,13 +50,10 @@ const CustomWebcam: React.FC<CustomWebcamProp> = ({
 
       setCountdown(null);
 
-      // Chụp ảnh
       if (webcamRef.current) {
         const image = webcamRef.current.getScreenshot();
         if (image) {
           setImages((prev) => [...prev, image]);
-          console.log(`📸 Ảnh ${i + 1} đã chụp`);
-          console.log(image)
         }
       }
 
@@ -65,7 +65,6 @@ const CustomWebcam: React.FC<CustomWebcamProp> = ({
 
   return (
     <div className="flex gap-6">
-      {/* Webcam Section */}
       <div className="relative">
         <Webcam
           ref={webcamRef}
@@ -85,7 +84,6 @@ const CustomWebcam: React.FC<CustomWebcamProp> = ({
         )}
       </div>
 
-      {/* Images Gallery Section */}
       {images.length > 0 && (
         <ImagesGallery images={images} totalShots={totalShots} width={width} height={height}/>
       )}
