@@ -48,4 +48,3 @@ const CapturePage = () => {
 };
 
 export default CapturePage;
-
