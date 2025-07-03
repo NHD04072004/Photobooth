@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Others
+utils/service_account.json
+.env
+.idea
+__pycache__/
