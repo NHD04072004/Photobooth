@@ -1,6 +1,7 @@
-import { useNavigate } from 'react-router';
+import { useNavigate } from "react-router";
 import picperfect from "../../assets/picperfect.png";
-import CustomWebcam from '../ui/Webcam';
+import CustomWebcam from "../ui/Webcam";
+import { postSession } from "../../api/session";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -8,8 +9,11 @@ const HomePage = () => {
   const width = window.innerWidth * 0.8;
   const height = window.innerHeight * 0.6;
 
-  const handleStart = () => {
-    navigate('/frame');
+  const handleStart = async () => {
+    const data = await postSession();
+    console.log("Session created:", data.session_id);
+    localStorage.setItem("sessionId", data.session_id);
+    navigate("/frame");
   };
 
   return (

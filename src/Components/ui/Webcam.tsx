@@ -21,7 +21,7 @@ const CustomWebcam: React.FC<CustomWebcamProp> = ({
   height,
   facingMode = 'user',
   totalShots = 4,
-  countdownSeconds = 5,
+  countdownSeconds = 1,
   isCapture = false,
   images = [],
   setImages = () => {},

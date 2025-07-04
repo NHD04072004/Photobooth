@@ -1,12 +1,17 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router";
 import ImagePreviewPopup from "../ui/ImagePreviewPopup";
+import { postSelectedImages } from "../../api/images";
 
 const SelectImagePage = () => {
-  const images = localStorage.getItem('images')
-    ? JSON.parse(localStorage.getItem('images') || '[]') : [];
-
-  const frame = localStorage.getItem('selectedFrame')
-    ? JSON.parse(localStorage.getItem('selectedFrame') || '{}') : null;
+  const navigate = useNavigate();
+  const sessionId = localStorage.getItem("sessionId");
+  const images = localStorage.getItem("images")
+    ? JSON.parse(localStorage.getItem("images") || "[]")
+    : [];
+  const frame = localStorage.getItem("selectedFrame")
+    ? JSON.parse(localStorage.getItem("selectedFrame") || "{}")
+    : null;
 
   // State để lưu danh sách index ảnh đã chọn theo thứ tự chọn
   const [selectedIndexes, setSelectedIndexes] = useState<number[]>([]);
@@ -26,9 +31,26 @@ const SelectImagePage = () => {
   };
 
   // Xử lý khi bấm nút xác nhận
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     const selectedImages = selectedIndexes.map((i) => images[i]);
-    console.log(selectedImages);
+    const files = await Promise.all(
+      selectedImages.map(async (base64, index) => {
+        const res = await fetch(base64);
+        const blob = await res.blob();
+        return new File([blob], `photo-${index + 1}.jpg`, {
+          type: "image/jpeg",
+        });
+      })
+    );
+    const result = await postSelectedImages(files);
+    if (result.error) {
+      console.error("Error uploading images:", result.error);
+      return;
+    }
+    console.log("Images uploaded successfully:", result);
+    localStorage.setItem("selectedImages", JSON.stringify(selectedImages));
+    
+    navigate("/printer");
   };
 
   const handlePreview = () => {
@@ -43,35 +65,44 @@ const SelectImagePage = () => {
     <div className="min-h-screen bg-[#FFFBEA] p-10 flex flex-col justify-between">
       <h1 className="text-6xl mb-8">Chọn ảnh</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10 justify-items-center items-end">
-        {images && images.length > 0 && images.map((image: string, index: number) => {
-          const selectedOrder = selectedIndexes.indexOf(index);
-          return (
-            <div key={index} className="flex flex-col items-center gap-6 cursor-pointer relative" onClick={() => handleSelect(index)}>
+        {images &&
+          images.length > 0 &&
+          images.map((image: string, index: number) => {
+            const selectedOrder = selectedIndexes.indexOf(index);
+            return (
               <div
-                className="relative flex items-center justify-center bg-white border-2 rounded-lg shadow-md"
-                style={{
-                  width: '240px',
-                  aspectRatio: frame ? frame.ratio : 1.5,
-                  borderColor: selectedOrder !== -1 ? '#3b82f6' : '#e5e7eb',
-                  boxShadow: selectedOrder !== -1 ? '0 4px 20px rgba(59,130,246,0.2)' : undefined,
-                  transition: 'all 0.2s',
-                }}
+                key={index}
+                className="flex flex-col items-center gap-6 cursor-pointer relative"
+                onClick={() => handleSelect(index)}
               >
-                <img
-                  src={image}
-                  alt={`Ảnh ${index + 1}`}
-                  className="w-full h-full object-contain rounded-lg"
-                  style={{ aspectRatio: frame ? frame.ratio : 1.5 }}
-                />
-                {selectedOrder !== -1 && (
-                  <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
-                    {selectedOrder + 1}
-                  </div>
-                )}
+                <div
+                  className="relative flex items-center justify-center bg-white border-2 rounded-lg shadow-md"
+                  style={{
+                    width: "240px",
+                    aspectRatio: frame ? frame.ratio : 1.5,
+                    borderColor: selectedOrder !== -1 ? "#3b82f6" : "#e5e7eb",
+                    boxShadow:
+                      selectedOrder !== -1
+                        ? "0 4px 20px rgba(59,130,246,0.2)"
+                        : undefined,
+                    transition: "all 0.2s",
+                  }}
+                >
+                  <img
+                    src={image}
+                    alt={`Ảnh ${index + 1}`}
+                    className="w-full h-full object-contain rounded-lg"
+                    style={{ aspectRatio: frame ? frame.ratio : 1.5 }}
+                  />
+                  {selectedOrder !== -1 && (
+                    <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+                      {selectedOrder + 1}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
       </div>
       <div className="flex gap-4 justify-center mt-8">
         <button
