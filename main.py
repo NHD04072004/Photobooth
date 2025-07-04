@@ -81,6 +81,8 @@ def list_sessions():
     List all sessions cùng metadata và danh sách ảnh đã upload.
     """
     session_dir = "images"
+    if not os.path.exists(session_dir):
+        raise HTTPException(status_code=404, detail="No sessions found")
     session_list = []
 
     for session_id in os.listdir(session_dir):
