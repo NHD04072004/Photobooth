@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
-import DynamicFrame from '../ui/DynamicFrame';
-import BackNextButton from '../ui/BackNextButton';
-import type { FrameOption } from '../../interface';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
+import DynamicFrame from "../ui/DynamicFrame";
+import BackNextButton from "../ui/BackNextButton";
+import type { FrameOption } from "../../interface";
+import { postSelectedFrame } from "../../api/frame";
 
 const FrameChildrenPage = () => {
   const navigate = useNavigate();
@@ -10,9 +11,9 @@ const FrameChildrenPage = () => {
   const [frameOptions, setFrameOptions] = useState<FrameOption[]>([]);
 
   useEffect(() => {
-    const storedFrame = localStorage.getItem('selectedFrame');
-    if (storedFrame) {
-      setFrameOptions(JSON.parse(storedFrame).options);
+    const frameFamily = localStorage.getItem("frameFamily");
+    if (frameFamily) {
+      setFrameOptions(JSON.parse(frameFamily).options);
     }
   }, []);
 
@@ -20,19 +21,21 @@ const FrameChildrenPage = () => {
     setSelectedFrame(frame);
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!selectedFrame) {
-      alert('Vui lòng chọn một khung ảnh!');
+      alert("Vui lòng chọn một khung ảnh!");
       return;
     }
 
-    localStorage.setItem('selectedFrame', JSON.stringify(selectedFrame));
-
+    localStorage.setItem("optionFrame", JSON.stringify(selectedFrame));
+    localStorage.setItem("frameOptionId", selectedFrame.id);
+    const res = await postSelectedFrame();
+    localStorage.setItem('selectedFrame', JSON.stringify(res));
     navigate(`/capture/${selectedFrame.id}`);
-  }
+  };
 
   const handleBack = () => {
-    navigate('/frame');
+    navigate("/frame");
   };
 
   return (
@@ -40,9 +43,9 @@ const FrameChildrenPage = () => {
       <h1 className="text-6xl mb-8 ">Chọn Khung Ảnh</h1>
 
       <div className="flex justify-center mt-10 items-end gap-x-32">
-        {frameOptions && frameOptions.length > 0 &&
-          frameOptions.map((frame) =>
-          (
+        {frameOptions &&
+          frameOptions.length > 0 &&
+          frameOptions.map((frame) => (
             <div
               key={frame.id}
               className="flex flex-col items-center gap-6 cursor-pointer"
@@ -56,8 +59,7 @@ const FrameChildrenPage = () => {
                 isSelected={selectedFrame && selectedFrame.id === frame.id}
               />
             </div>
-          )
-          )}
+          ))}
       </div>
 
       <div className="flex justify-between mt-10">

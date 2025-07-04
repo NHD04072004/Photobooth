@@ -6,6 +6,7 @@ export const postSelectedImages = async (images: File[]) => {
   images.forEach((image) => {
     formData.append(`files`, image);
   });
+  console.log(formData);
 
   const response = await fetch(
     `${API_URL}/sessions/${sessionId}/upload-photos`,
@@ -22,15 +23,15 @@ export const postSelectedImages = async (images: File[]) => {
   return await response.json();
 };
 
-export const composeImage = async () => {
+export const getComposedImage = async () => {
   const sessionId = localStorage.getItem("sessionId");
-  const response = await fetch(`${API_URL}/sessions/${sessionId}/compose`, {
-    method: "POST",
+  const response = await fetch(`${API_URL}/sessions/${sessionId}/composed`, {
+    method: "GET",
   });
 
   if (!response.ok) {
-    throw new Error("Failed to compose image");
+    throw new Error("Failed to get composed image");
   }
 
-  return await response.json();
+  return await response.blob();
 };

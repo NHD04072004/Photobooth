@@ -5,7 +5,6 @@ import { postSelectedImages } from "../../api/images";
 
 const SelectImagePage = () => {
   const navigate = useNavigate();
-  const sessionId = localStorage.getItem("sessionId");
   const images = localStorage.getItem("images")
     ? JSON.parse(localStorage.getItem("images") || "[]")
     : [];
@@ -47,8 +46,8 @@ const SelectImagePage = () => {
       console.error("Error uploading images:", result.error);
       return;
     }
-    console.log("Images uploaded successfully:", result);
-    localStorage.setItem("selectedImages", JSON.stringify(selectedImages));
+    console.log("Images uploaded successfully:", result.files);
+    localStorage.setItem("selectedImages", JSON.stringify(result.files));
     
     navigate("/printer");
   };
