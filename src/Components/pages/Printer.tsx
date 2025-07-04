@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router";
+import BackNextButton from "../ui/BackNextButton";
 import { useEffect, useState } from "react";
 import { getComposedImage } from "../../api/images";
 
@@ -27,23 +28,9 @@ const PrinterPage = () => {
   };
   const handlePrint = () => {
     if (composedImage) {
-      const printWindow = window.open("", "_blank");
-      if (printWindow) {
-        printWindow.document.write(`
-          <html>
-            <head>
-              <title>In ảnh</title>
-            </head>
-            <body>
-              <img src="${composedImage}" style="width: 50%; height: auto;" />
-            </body>
-          </html>
-        `);
-        printWindow.document.close();
-        printWindow.print();
-      }
+      console.log("In ảnh:", composedImage);
     } else {
-      alert("Không có ảnh để in!");
+      console.error("Không có ảnh để in.");
     }
   };
   return (
@@ -61,18 +48,7 @@ const PrinterPage = () => {
         </div>
       )}
       <div className="mt-6">
-        <button
-          onClick={handleBack}
-          className="bg-blue-500 text-white px-4 py-2 rounded mr-4"
-        >
-          Quay Lại
-        </button>
-        <button
-          onClick={handlePrint}
-          className="bg-green-500 text-white px-4 py-2 rounded"
-        >
-          In Ảnh
-        </button>
+        <BackNextButton onBack={handleBack} onNext={handlePrint} />
       </div>
     </div>
   );
