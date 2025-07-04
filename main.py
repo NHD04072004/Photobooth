@@ -200,29 +200,9 @@ async def upload_photos(
         data = await file.read()
         with open(file_path, "wb") as f:
             f.write(data)
-        uploaded_files.append(filename)
-
-    return JSONResponse(
-        status_code=201,
-        content={
-            "message": f"Đã upload {len(uploaded_files)} ảnh thành công",
-            "files": uploaded_files
-        }
-    )
-
-
-@app.post("/sessions/{session_id}/compose", status_code=200)
-def compose_images(
-        session_id: str,
-        file_list: List[str],
-):
-    session_dir = f"images/{session_id}"
-    save_selected = os.path.join(session_dir, "selected")
-    os.makedirs(save_selected, exist_ok=True)
-    if not os.path.exists(session_dir):
-        raise HTTPException(404, "Session không tồn tại")
-
-    meta = sessions.get(session_id, {})
+        uploaded_files.append(file_path)
+    with open(os.path.join(session_dir, f"{session_id}.json"), "r", encoding="utf-8") as f:
+        meta = json.load(f)
     cols = meta.get("cols")
     rows = meta.get("rows")
     frame_w = meta.get("frame_width")
@@ -230,28 +210,44 @@ def compose_images(
     print(meta)
     if not all([cols, rows, frame_w, frame_h]):
         raise HTTPException(400, "Session chưa chọn frame hoặc thiếu metadata")
-
-    images = []
-    for filename in file_list:
-        img_path = os.path.join(save_selected, filename)
-        if not os.path.exists(img_path):
-            raise HTTPException(400, f"Ảnh {filename} không tồn tại")
-        images.append(Image.open(img_path).convert("RGB"))
-
     factory = PictureFactory(
-        images=images,
+        images=[Image.open(image).convert("RGB") for image in uploaded_files],
         frame_w=frame_w,
         frame_h=frame_h,
         layout=(cols, rows),
         margin=MARGIN
     )
     composed = factory.compose_photos()
-    composed.save(f"{os.path.join(session_dir, "result.jpeg")}")
+    composed.save(f"{os.path.join(session_dir, 'result.jpeg')}")
 
-    buf = io.BytesIO()
-    composed.save(buf, format="JPEG")
-    buf.seek(0)
-    return StreamingResponse(buf, media_type="image/jpeg")
+    return JSONResponse(
+        status_code=201,
+        content={
+            "message": f"Đã upload {len(uploaded_files)} ảnh thành công",
+            "files": uploaded_files,
+            "Compose": os.path.join(session_dir, "result.jpeg")
+        }
+    )
+
+
+@app.get("/sessions/{session_id}/composed", status_code=200)
+def compose_images(
+        session_id: str,
+):
+    session_dir = f"images/{session_id}"
+    if not os.path.exists(session_dir):
+        raise HTTPException(404, "Session not found")
+    
+    result_path = os.path.join(session_dir, "result.jpeg")
+    if not os.path.isfile(result_path):
+        raise HTTPException(status_code=404, detail="Composed image not found")
+
+    return FileResponse(
+        path=result_path,
+        media_type="image/jpeg",
+        filename="result.jpeg"
+    )
+    
 
 
 @app.get("/sessions/{session_id}/download", response_class=FileResponse)
