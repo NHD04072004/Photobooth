@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from utils.frame_images import FrameFamily, FRAME_FAMILIES, SelectFrameRequest
 from utils.factory import PictureFactory
+from utils.config import API
 
 app = FastAPI()
 
@@ -72,6 +73,33 @@ def create_session():
             "message": "Session was created successfully",
         }
     )
+
+
+@app.get("/list-sessions")
+def list_sessions():
+    """
+    List all sessions cùng metadata và danh sách ảnh đã upload.
+    """
+    session_dir = "images"
+    session_list = []
+
+    for session_id in os.listdir(session_dir):
+        session_path = os.path.join(session_dir, session_id)
+        if not os.path.isdir(session_path):
+            continue
+
+        meta_path = os.path.join(session_path, f"{session_id}.json")
+        if not os.path.exists(meta_path):
+            continue
+
+        with open(meta_path, "r", encoding="utf-8") as f:
+            session_meta = json.load(f)
+
+        images = [f for f in os.listdir(session_path) if f.endswith(".jpg")]
+        session_meta["images"] = images
+        session_list.append(session_meta)
+
+    return session_list
 
 
 @app.get("/frames", response_model=List[FrameFamily])
@@ -145,22 +173,10 @@ async def capture_image(session_id: str = Path(..., description="Session ID"), i
     return JSONResponse(
         content={
             "filename": image.filename,
-            "url": f"http://localhost:8000/images/{image_path}",
+            "url": f"{API}/images/{image_path}",
             "status": True
         }
     )
-
-
-@app.get("/sessions/{session_id}/images")
-def list_images(session_id: str):
-    folder_path = f'images/{session_id}'
-    if not os.path.exists(folder_path):
-        raise HTTPException(status_code=404, detail="Session not found")
-
-    image_files = [f for f in os.listdir(folder_path) if f.endswith(".jpg")]
-    image_urls = [f"http://localhost:8000/images/{session_id}/{img}" for img in image_files]
-
-    return {"images": image_urls}
 
 
 @app.post("/sessions/{session_id}/upload-photos")
